@@ -1,7 +1,3 @@
-Below is the refactored and restructured README for the AskPDF project.
-
----
-
 # AskPDF: RAG-Powered Document Q&A System
 
 AskPDF is a production-ready RESTful backend API designed for Retrieval-Augmented Generation (RAG). It enables users to upload PDF documents and engage in real-time, grounded Q&A sessions. The system handles text extraction, recursive chunking, semantic embedding via the Google Gemini API, and vector search through MongoDB Atlas to deliver accurate, hallucination-free responses.
