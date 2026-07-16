@@ -14,15 +14,19 @@ const documentSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    mimeType: {
+      type: String,
+      required: true,
+    },
+
+    extractedText: {
+      type: String,
+      default: "",
+    },
 
     pageCount: {
       type: Number,
-      default: 0
-    },
-
-    chunkCount: {
-      type: Number,
-      default: 0
+      default: 0,
     },
 
     status: {
@@ -33,11 +37,6 @@ const documentSchema = new mongoose.Schema(
 
     errorMessage: {
       type: String,
-      default: null,
-    },
-
-    processedAt: {
-      type: Date,
       default: null,
     },
   },

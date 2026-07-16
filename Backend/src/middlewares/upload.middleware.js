@@ -1,27 +1,34 @@
 import multer from "multer";
-import { MAX_FILE_SIZE } from "../utils/constants.js";
+import path from "path";
+import { ApiError } from "../utils/ApiError.js";
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
+  destination: function (req, file, cb) {
     cb(null, "uploads/");
   },
-  filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname));
   },
 });
 
 const fileFilter = (req, file, cb) => {
-  if (file.mimetype === "application/pdf") {
+  const allowedMimeTypes = [
+    "application/pdf",
+    "text/plain",
+    "text/markdown",
+    "application/md",
+    "text/csv"
+  ];
+
+  if (allowedMimeTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error("Only PDF files are accepted"), false);
+    cb(new ApiError(415, "Unsupported file format. Please upload PDF, TXT, or MD."), false);
   }
 };
-
 export const upload = multer({
   storage,
   fileFilter,
-  limits: {
-    fileSize: MAX_FILE_SIZE,
-  },
+  limits: { fileSize: 10 * 1024 * 1024 }, 
 });

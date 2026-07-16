@@ -1,16 +1,15 @@
 import express from "express";
 import {
   uploadDocument,
-  listDocuments,
-  getDocument,
+  getSessionDocuments,
   deleteDocument,
 } from "../controllers/document.controller.js";
 import { upload } from "../middlewares/upload.middleware.js";
-const router = express.Router();
 
-router.post("/upload", upload.single("pdf"), uploadDocument);
-router.get("/", listDocuments);
-router.get("/:id", getDocument);
+const router = express.Router();
+// changed 'pdf' to 'file'
+router.post("/upload", upload.single("file"), uploadDocument);
+router.get("/session/:sessionId", getSessionDocuments);
 router.delete("/:id", deleteDocument);
 
 export default router;

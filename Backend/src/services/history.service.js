@@ -1,21 +1,26 @@
-import { redis } from "../config/redis.js";
+import { Session } from "../models/session.model.js";
 
 export const saveMessage = async (sessionId, role, content) => {
-  const message = JSON.stringify({ role, content, timestamp: Date.now() });
-
-  await redis.rpush(`chat:${sessionId}`, message);
-  await redis.ltrim(`chat:${sessionId}`, -20, -1);
-  await redis.expire(`chat:${sessionId}`, 86400);
+  await Session.findByIdAndUpdate(sessionId, {
+    $push: { 
+      history: { role, content } 
+    }
+  });
 };
 
 export const getHistory = async (sessionId) => {
-  let res = await redis.lrange(`chat:${sessionId}`, 0, -1);
-  for (let i = 0; i < res.length; i++) {
-    res[i] = JSON.parse(res[i]);
-  }
-  return res;
+  const session = await Session.findById(sessionId).lean();
+  if (!session || !session.history) return [];
+  return session.history.map(msg => ({
+    role: msg.role,
+    content: msg.content,
+    timestamp: msg.timestamp
+  }));
 };
 
 export const deleteHistory = async (sessionId) => {
-  await redis.del(`chat:${sessionId}`);
+  // Clears the history array but keeps the session and documents intact
+  await Session.findByIdAndUpdate(sessionId, {
+    $set: { history: [] }
+  });
 };

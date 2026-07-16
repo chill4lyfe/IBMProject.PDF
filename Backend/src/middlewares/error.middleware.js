@@ -3,20 +3,19 @@ const errorHandler = (err, req, res, next) => {
   let message = err.message || "Internal Server Error";
 
   if (err.name === "CastError") {
-    // mongoose vali error jab id galat dalte hai params mai
     statusCode = 400;
-    message = "Invalid Id";
+    message = `Resource not found. Invalid: ${err.path}`;
   }
-
-  // dupli keys k lea h yeh vlaaa
   if (err.code === 11000) {
     statusCode = 400;
-    message = "Duplicate field value entered. Please use another one.";
+    message = `Duplicate field value entered: ${Object.keys(err.keyValue)} already exists.`;
   }
-
+  // Ensure consistent JSON structure matching ApiResponse
   res.status(statusCode).json({
-    success: false,
+    statusCode,
+    data: null,
     message,
+    success: false,
   });
 };
 

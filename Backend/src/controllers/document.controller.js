@@ -1,89 +1,78 @@
+// src/controllers/document.controller.js
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { Document } from "../models/document.model.js";
-import { Chunk } from "../models/chunks.model.js";
+import { Session } from "../models/session.model.js";
 import { ApiError } from "../utils/ApiError.js";
-import { JOB_TTL } from "../utils/constants.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { redis } from "../config/redis.js";
-import crypto from "crypto";
+import { parseDocument } from "../services/documentParser.service.js";
 
-const uploadDocument = asyncHandler(async (req, res) => {
+export const uploadDocument = asyncHandler(async (req, res) => {
   const filePath = req.file?.path;
+  let { sessionId } = req.body; 
 
-  if (!filePath) {
-    throw new ApiError(400, "PDF is missing");
+  if (!filePath) throw new ApiError(400, "File is missing");
+  let session;
+  if (sessionId) {
+    session = await Session.findById(sessionId);
+    if (!session) throw new ApiError(404, "Session not found");
+    if (session.documents.length >= 5) {
+      throw new ApiError(400, "Maximum of 5 documents allowed per session.");
+    }
+  } else {
+    session = await Session.create({ title: "New Workspace" });
+    sessionId = session._id.toString();
   }
-
+  const { text, pageCount } = await parseDocument(filePath, req.file.mimetype);
+  // Save Document with Extracted Text
   const document = await Document.create({
     fileName: req.file.filename,
     originalName: req.file.originalname,
     fileSize: req.file.size,
+    mimeType: req.file.mimetype,
+    pageCount,
+    extractedText: text, // The massive string for the 1M token window
+    status: "ready",
   });
+  session.documents.push(document._id);
+  await session.save();
 
-  const jobId = crypto.randomUUID();
-
-  await redis.hset(`job:${jobId}`, {
-    status: "queued",
-    documentId: document._id.toString(),
-    startedAt: new Date().toISOString(),
-  });
-
-  await redis.expire(`job:${jobId}`, JOB_TTL);
-
-  await redis.lpush(
-    "ingestion:queue",
-    JSON.stringify({
-      documentId: document._id,
-      filePath: req.file.path,
-      jobId,
-    }),
-  );
-
-  res.status(202).json(
+  res.status(201).json(
     new ApiResponse(
-      202,
+      201,
       {
-        documentId: document._id,
-        jobId,
+        sessionId: session._id,
+        document: {
+          id: document._id,
+          originalName: document.originalName,
+          status: document.status
+        }
       },
-      "PDF accepted for processing",
+      "File processed and attached to session successfully"
     ),
   );
 });
 
-const listDocuments = asyncHandler(async (req, res) => {
-  const documents = await Document.find().sort({ createdAt: -1 });
-  res
-    .status(200)
-    .json(new ApiResponse(200, { documents }, "All documents retrieved"));
+export const getSessionDocuments = asyncHandler(async (req, res) => {
+  const { sessionId } = req.params;
+  const session = await Session.findById(sessionId).populate("documents", "-extractedText");
+
+  if (!session) throw new ApiError(404, "Session not found");
+
+  res.status(200).json(new ApiResponse(200, { documents: session.documents }, "Documents retrieved"));
 });
 
-const getDocument = asyncHandler(async (req, res) => {
+export const deleteDocument = asyncHandler(async (req, res) => {
   const { id } = req.params;
-
-  const document = await Document.findById(id);
-
-  if (!document) {
-    throw new ApiError(404, "Document not found");
-  }
-
-  res
-    .status(200)
-    .json(new ApiResponse(200, { document }, "Document retrieved"));
-});
-
-const deleteDocument = asyncHandler(async (req, res) => {
-  const { id } = req.params;
+  const { sessionId } = req.body;
 
   const document = await Document.findByIdAndDelete(id);
+  if (!document) throw new ApiError(404, "Document not found");
 
-  if (!document) {
-    throw new ApiError(404, "Document not found");
+  if (sessionId) {
+    await Session.findByIdAndUpdate(sessionId, {
+      $pull: { documents: id }
+    });
   }
 
-  await Chunk.deleteMany({ documentId: id });
-
-  res.status(200).json(new ApiResponse(200, {}, "Document deleted"));
+  res.status(200).json(new ApiResponse(200, {}, "Document removed from Workspace"));
 });
-
-export { uploadDocument, listDocuments, getDocument, deleteDocument };
