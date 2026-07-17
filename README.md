@@ -1,8 +1,9 @@
 # Helper by Rocket
 **Meet our Multi-Format Document AI Workspace.**
 
-Helper is not just another ChatGPT wrapper. It is a premium, zero-auth, multi-session AI workspace designed to leverage the absolute power of large token context AIs by implementing **Long-Context LLM Pipeline**
-We didn't rely on traditional RAG because of its chunking oflarge scale documents we were directly hitting too many requests on free tier. To leverage large million context windows we now get for free, our HELPER uses a **Brute-Force Context Architecture**. It feeds your entire document, directly into the AI's memory, allowing for unparalleled complex reasoning, thematic summaries, and deep document analysis.
+Helper is not just another ChatGPT wrapper. It is a premium, zero-auth, multi-session AI workspace designed to leverage the absolute power of large token context AIs by implementing **Long-Context LLM Pipeline**.
+
+We didn't rely on traditional RAG, because of its chunking of large scale documents, we were directly hitting too many requests on the free tier. To leverage the million tokens context windows that we now get for free, our HELPER uses a **Brute-Force Context Architecture**. It feeds your entire document, directly into the AI's memory, allowing for unparalleled complex reasoning and deep document analysis.
 
 ---
 
@@ -96,3 +97,6 @@ Future updates will focus on scale and cost-efficiency:
 
 ---
 *Built by Team Rocket. IBM SkillsBuild*
+
+## License
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
