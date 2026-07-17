@@ -1,130 +1,98 @@
-# AskPDF: RAG-Powered Document Q&A System
+# Helper by Rocket
+**Meet our Multi-Format Document AI Workspace.**
 
-AskPDF is a production-ready RESTful backend API designed for Retrieval-Augmented Generation (RAG). It enables users to upload PDF documents and engage in real-time, grounded Q&A sessions. The system handles text extraction, recursive chunking, semantic embedding via the Google Gemini API, and vector search through MongoDB Atlas to deliver accurate, hallucination-free responses.
+Helper is not just another ChatGPT wrapper. It is a premium, zero-auth, multi-session AI workspace designed to leverage the absolute power of large token context AIs by implementing **Long-Context LLM Pipeline**
+We didn't rely on traditional RAG because of its chunking oflarge scale documents we were directly hitting too many requests on free tier. To leverage large million context windows we now get for free, our HELPER uses a **Brute-Force Context Architecture**. It feeds your entire document, directly into the AI's memory, allowing for unparalleled complex reasoning, thematic summaries, and deep document analysis.
 
-## Key Features
+---
 
-* **PDF Ingestion:** Supports uploads up to 200 pages or 20MB. Documents are parsed and cleaned automatically via background processing.
-* **Recursive Chunking:** Splits text based on logical boundaries (paragraphs, sentences, or words) with configurable overlap to maintain context.
-* **Semantic Vector Embeddings:** Utilizes the Google Gemini `text-embedding-004` model to generate 768-dimensional semantic embeddings.
-* **Vector Search:** Employs MongoDB Atlas `$vectorSearch` for efficient retrieval using cosine similarity and metadata filtering.
-* **Streaming Responses:** Provides low-latency, word-by-word streaming using Server-Sent Events (SSE) and the `gemini-3.0-flash` model.
-* **Conversation Memory:** Maintains multi-turn context using Redis Lists.
-* **Rate Limiting:** Protects the Gemini API via a fixed-window counter (20 requests per minute per IP).
-* **Background Processing:** Executes non-blocking PDF processing using Redis `LPUSH`/`BRPOP` queues.
-* **Hallucination Prevention:** Implements strict system prompting and similarity thresholding to ensure responses are derived exclusively from the source document.
+## UI/UX Experience
+UI/UX is carefully crafted to create a workspace that feels like a high-end, enterprise-grade tool:
+- A custom, premium looking,  minimalistic royal deep-green theme.
+- Seamlessly manage your chat history, active workspace documents, and global sessions with a 3-Pane Contextual Layout.
+- No logins required. Your sessions are managed locally while all your documents are safely processed on the backend. No document survives in the server so the data is strictly between the user and AI.
+- Experience fluid & polished interaction. Renders complex AI responses, code blocks, and tables beautifully.
 
-## System Architecture
+---
 
-### Document Ingestion Flow
+## Core Features
 
-1. **Upload:** PDF is uploaded via Multer.
-2. **Queueing:** Document status is set to `processing`, and a job is pushed to the Redis queue.
-3. **Worker:** A background worker performs text parsing, cleaning, and recursive chunking.
-4. **Storage:** Embeddings are generated via Gemini and bulk-inserted into MongoDB; status is updated to `ready`.
+*   **Real-Time SSE Streaming:** Watch the AI think and type in real-time.
+*   **Dynamic Token Tracking:** A real-time progress pill tracks your exact context footprint.
+*   **Concurrent Operations:** The backend uses MongoDB atomic operations to ensure token math never breaks.
+*   **Seamless Chat Transfer:** Automatically get a perfectly engineered `.md` export of your chat history after the session limit is reached. Just drop it into a new session & continue fresh.
+*   **Persona Selector:** Increase efficiency & response quality by  letting AI adopt specific personas.
 
-### Query & RAG Flow
-
-1. **Request:** User question is validated against rate limits.
-2. **Context:** Chat history is retrieved from Redis.
-3. **Search:** The question is embedded, and MongoDB Atlas performs a vector search for the top 5 relevant chunks.
-4. **Generation:** A prompt containing context, history, and the user's question is sent to the Gemini Chat API.
-5. **Streaming:** Responses are streamed via SSE to the client and saved to the conversation history.
+---
 
 ## Tech Stack
+**Frontend:**
+*   React (Vite)
+*   Tailwind CSS v4 (Custom  architectures)
 
-| Layer | Technology |
-| --- | --- |
-| **Runtime** | Node.js |
-| **Framework** | Express.js |
-| **Database** | MongoDB Atlas |
-| **Cache & Queue** | Redis (ioredis) |
-| **AI SDK** | `@google/genai` |
-| **Embeddings** | `text-embedding-004` |
-| **Chat LLM** | `gemini-3.0-flash` |
-| **Parsing** | `pdf-parse`, `multer` |
+**Backend:**
+*   Node.js & Express
+*   MongoDB & Mongoose
+*   Google Gemini API
+*   Multer (Document handling)
 
-## API Endpoints
-
-### Documents (`/api/documents`)
-
-* `POST /upload`: Upload a PDF. Returns a Job ID.
-* `GET /`: Retrieve a paginated list of uploaded documents.
-* `GET /:id`: Get document details and processing status.
-* `DELETE /:id`: Remove a document, its chunks, and associated caches.
-
-### Chat (`/api/chat`)
-
-* `POST /ask`: Submit a question. Returns an SSE stream.
-* `GET /history/:sessionId`: Retrieve history for a session.
-* `DELETE /history/:sessionId`: Clear session history.
-
-### Jobs (`/api/jobs`)
-
-* `GET /:jobId`: Poll background worker status (e.g., `parsing`, `chunking`, `completed`).
+---
 
 ## Getting Started
 
-### Prerequisites
+### 1. Clone & Install
+```powershell
+git clone https://github.com/chill4lyfe/IBMProject.PDF.git
+cd askpdf
 
-* Node.js (v20.6+)
-* MongoDB Atlas account (with a configured Vector Search index)
-* Redis server
-* Google Gemini API Key
-
-### Installation
-
-```bash
-git clone <repository-url>
-cd <project-directory>
+# Install Backend
+cd Backend
 npm install
-mkdir -p uploads && touch uploads/.gitkeep
 
+# Install Frontend
+cd ../Frontend
+npm install
 ```
 
-### Environment Configuration
-
-Create a `.env` file in the root directory:
-
+### 2. Environment Setup
+Create a `.env` file in your `Backend` folder:
 ```env
 PORT=8000
-MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/database_name
-REDIS_URL=redis://localhost:6379
-GEMINI_API_KEY=your_gemini_api_key
-
+NODE_ENV=development
+GEMINI_API_KEY=<enter_your_google_gemini_api_key>
+CHAT_MODEL="gemini-3.1-flash-lite"
+MONGODB_URI=mongodb://127.0.0.1:27017/askpdf?directConnection=true
 ```
-
-### MongoDB Vector Index Setup
-
-Create a Search Index named `vector_index` on the `chunks` collection in MongoDB Atlas:
-
-```json
-{
-  "fields": [
-    {
-      "type": "vector",
-      "path": "embedding",
-      "numDimensions": 768,
-      "similarity": "cosine"
-    },
-    {
-      "type": "filter",
-      "path": "documentId"
-    }
-  ]
-}
-
+### 3. Docker Setup
+- Install Docker (windows/linux/mac) [for windows check WSL2 and keep windows containers unchecked while setup]
+- open terminal and run this command:
 ```
+docker run -d --name local-mongo -p 27017:27017 mongodb/mongodb-atlas-local:latest
+```
+(u'll be able to see local:mongo live and running in the docker application...keep it running till the site is functioning.)
 
-### Execution
+### 4. Run the Workspace
+Open two terminals.
 
+**Terminal 1 (Backend):**
 ```bash
+cd Backend
 npm run dev
-
 ```
 
-## Engineering Decisions
+**Terminal 2 (Frontend):**
+```bash
+cd Frontend
+npm run dev
+```
+Visit `http://localhost:5173` and start chatting!
 
-* **Redis Queues:** `BRPOP` provides a lightweight, blocking mechanism for background tasks without the complexity of traditional message brokers.
-* **Cosine Similarity:** Selected for its effectiveness in semantic text matching, regardless of variations in text length.
-* **Server-Sent Events (SSE):** Utilized to stream LLM tokens to the client as they are generated, enhancing perceived performance and user experience.
+---
+
+## Future Roadmap
+Future updates will focus on scale and cost-efficiency:
+*   **IMP: Context Caching:** Implementing Google's Caching API to store massive documents on the server and getting only a cache-id, dropping latency and API costs by 70%.
+*   **Local Sovereign RAG:** Introducing local embedding models (HuggingFace) and a local Vector DB to create a hybrid offline-retrieval pipeline for infinite scaling.
+
+---
+*Built by Team Rocket. IBM SkillsBuild*
