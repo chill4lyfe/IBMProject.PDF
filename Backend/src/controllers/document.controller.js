@@ -29,7 +29,7 @@ export const uploadDocument = asyncHandler(async (req, res) => {
 
   // Enforce limit before database write
   if (session.totalTokens + tokenCount > 256000) {
-    throw new ApiError(400, "Adding this document exceeds the 500,000 token limit for this workspace.");
+    throw new ApiError(400, "Adding this document exceeds the 256,000 token limit for this workspace.");
   }
 
   const document = await Document.create({

@@ -208,7 +208,7 @@ return (
                 className="mt-2 px-6 py-2.5 bg-royal-accent text-royal-bg font-semibold rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2"
               >
                 <Download size={16} />
-                Download Chat Transfer (.md)
+                Initialize Transfer Doc (.md)
               </button>
             </div>
           ) : (

@@ -174,7 +174,7 @@ function App() {
               </div>
               <div className="flex flex-col items-center max-w-50 text-center">
                 <Zap size={22} className="text-royal-accent mb-3 opacity-80" />
-                <h3 className="text-medium font-medium text-gray-200 mb-2">1Mil Token Context</h3>
+                <h3 className="text-medium font-medium text-gray-200 mb-2">1M Token Context</h3>
                 <p className="text-xs text-royal-muted leading-relaxed">Analyze massive datasets and entire books simultaneously without losing contexts</p>
               </div>
             </div>
