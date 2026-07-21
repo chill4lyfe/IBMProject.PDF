@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:8000/api";
+const API_BASE = import.meta.env.VITE_API_URL;
 
 export const api = {
   uploadDocument: async (file, sessionId) => {
@@ -10,10 +10,12 @@ export const api = {
       method: "POST",
       body: formData,
     });
+
     if (!res.ok) {
       const err = await res.json();
       throw new Error(err.message || "Upload failed");
     }
+
     return res.json();
   },
 

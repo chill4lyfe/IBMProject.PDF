@@ -1,0 +1,26 @@
+services:
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile.prod
+    container_name: notebook-backend-prod
+    ports:
+      - "8000:8000"
+    environment:
+      PORT: 8000
+      NODE_ENV: production
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      CHAT_MODEL: ${CHAT_MODEL}
+      MONGODB_URI: ${MONGODB_URI}
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile.prod
+    container_name: notebook-frontend-prod
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
