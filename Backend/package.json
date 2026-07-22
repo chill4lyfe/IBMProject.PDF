@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --ignore uploads/ --env-file=.env server.js",
-    "start": "node --env-file=.env server.js"
-  },
+  "dev": "nodemon --ignore uploads/ --env-file=.env server.js",
+  "start": "node server.js"
+},
   "keywords": [],
   "author": "",
   "license": "GPL-3.0-or-later",
