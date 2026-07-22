@@ -1,6 +1,6 @@
 export const streamChatAsk = async (sessionId, question, persona, onChunk, onDone, onError, abortSignal) => {
   try {
-    const response = await fetch("http://localhost:8000/api/chat/ask", {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/chat/ask`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ sessionId, question, persona }),
