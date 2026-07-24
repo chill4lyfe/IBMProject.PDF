@@ -38,6 +38,9 @@ Home Screen:
 Chat Session:
 ![Chat](screenshots/chat.png)
 
+Session Limit Reached:
+![Limit](screenshots/limit.png)
+
 ## Tech Stack
 **Frontend:**
 *   React (Vite)
