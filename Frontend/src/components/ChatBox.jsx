@@ -68,7 +68,7 @@ const ChatBox = ({ activeSessionId, chatHistory, setChatHistory, setTotalTokens,
   const abortControllerRef = useRef(null);
   const textareaRef = useRef(null);
 
-  const isCapped = totalTokens >= 256000;
+  const isCapped = totalTokens >190000;
 
   // Auto-scroll to bottom
   const scrollToBottom = () => {

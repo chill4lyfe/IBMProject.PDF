@@ -210,8 +210,8 @@ function App() {
             {/* Z-INDEX FIX: Changed z-10 to z-50 */}
             <div className="absolute top-4 right-4 z-50">
               <div className="px-3 py-1.5 bg-royal-panel border border-royal-border rounded-full text-xs flex items-center gap-2 font-medium text-royal-muted shadow-lg">
-                <span className={`w-2 h-2 rounded-full animate-pulse ${totalTokens >= 256000 ? 'bg-red-500' : 'bg-royal-accent'}`}></span>
-                Context: {totalTokens.toLocaleString()} / 256k
+                <span className={`w-2 h-2 rounded-full animate-pulse ${totalTokens >= 190000 ? 'bg-red-500' : 'bg-royal-accent'}`}></span>
+                Context: {totalTokens.toLocaleString()} / 190k
               </div>
             </div>
 

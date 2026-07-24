@@ -15,8 +15,8 @@ export const askQuestion = asyncHandler(async (req, res) => {
   const session = await Session.findById(sessionId).populate("documents");
   if (!session) throw new ApiError(404, "Workspace session not found");
 
-  // NEW: Enforce 256k Cap before asking LLM
-  if (session.totalTokens >= 256000) {
+  // NEW: Enforce 190k Cap before asking LLM
+  if (session.totalTokens >= 190000) {
     // We throw a specific 403 error. The frontend will catch this and show the "Generate Summary" UI.
     throw new ApiError(403, "CONTEXT_LIMIT_REACHED");
   }
