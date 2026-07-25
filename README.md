@@ -18,7 +18,8 @@ Helper is not just another ChatGPT wrapper. It is a premium, zero-auth, multi-se
 
 We didn't rely on traditional RAG, because of its chunking of large scale documents, we were directly hitting too many requests on the free tier. To leverage the million tokens context windows that we now get for free, our HELPER uses a **Brute-Force Context Architecture**. It feeds your entire document, directly into the AI's memory, allowing for unparalleled complex reasoning and deep document analysis.
 
----
+## Backend Architecture
+![Backend Flow](screenshots/flow.png)
 
 ## UI/UX & Features
 - Multi-session zero-auth AI workspace
