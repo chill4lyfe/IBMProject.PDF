@@ -9,7 +9,7 @@
 ---
 
 # Try HELPER
-https://main.d218n5u6p5g5uy.amplifyapp.com
+https://main.d218n5u6p5g5uy.amplifyapp.com  (expiring on Feb 2027)
 
 ---
 
